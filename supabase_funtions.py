@@ -35,10 +35,10 @@ def get_schedule():
     nba_schedule.scrape_schedule()
     insertData()
     
-#schedule.every(10).seconds.do(get_schedule)
+schedule.every(10).seconds.do(get_schedule)
 
-# while True:
-#     schedule.run_pending()
-#     time.sleep(1)
+while True:
+    schedule.run_pending()
+    time.sleep(1)
 
 
