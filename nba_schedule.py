@@ -6,6 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
+import pytz
 import schedule
 
 
@@ -50,31 +51,41 @@ def get_abbreviation(team_name):
 def convert_date(date):
     date_obj = datetime.strptime(date, '%A, %B %d')
     current_year = datetime.now().year
-    date_obj = date_obj.replace(year=current_year)
+    date_obj = date_obj.replace(year=current_year).strftime('%Y-%m-%d')
     return date_obj
   
 def get_abbreviation(team_name):
     return team_abbreviations.get(team_name, team_name)
 
-def convert_time(date_obj,time_str):
-     time_obj = datetime.strptime(time_str, '%I:%M %p ET')
-     datetime_obj = datetime.combine(date_obj, time_obj.time())
-     return datetime_obj.strftime('%Y-%m-%dT%H:%M:%S') + 'Z'  # Append 'Z' to indicate UTC
+def convert_time(time_str):
+     parsed_time= datetime.strptime(time_str[:-3], '%I:%M %p')
+     eastern = pytz.timezone('US/Eastern')
+     localized_time = eastern.localize(parsed_time)
+     output_time = localized_time.strftime('%H:%M:%S')
+     return output_time
 
 
 def parse_schedule(schedule):
+        output = []
         for day in schedule:
             for date, games in day.items():
                 supabase_date = convert_date(date)
-                print(f"Date: {supabase_date}")
+                # print(f"Date: {supabase_date}")
                 for game in games:
                     time, home, opponent = game
-                    supabase_time = convert_time(supabase_date,time)
+                    supabase_time = convert_time(time)
                     home = get_abbreviation(home)
                     opponent = get_abbreviation(opponent)
-                    print(f"  Time: {supabase_time}")
-                    print(f"  Game: {home} vs {opponent}")
-                print()  
+                    # print(f"  Time: {supabase_time}")
+                    # print(f"  Game: {home} vs {opponent}")
+                    output.append({
+                    "date": supabase_date,
+                    "home_team": home,
+                    "time": supabase_time,
+                    "opponent_team": opponent})
+                # print() 
+        # print(output)  
+        return output
 
 def scrape_schedule():
     # Set up the Chrome options
@@ -85,7 +96,7 @@ def scrape_schedule():
     s = Service(driver_path)
 
     driver = webdriver.Chrome(service=s, options=options)
-    print(driver)
+    # print(driver)
     # Open the webpage
 
     driver.get("https://www.nba.com/schedule")
@@ -93,7 +104,7 @@ def scrape_schedule():
     schedule = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "div.ScheduleDay_sd__GFE_w")))
     game_list = []
     for day in schedule:
-        print("entered loop")
+        # print("entered loop")
         day_list = []
         date = day.find_element(By.CSS_SELECTOR, "h4.ScheduleDay_sdDay__3s2Xt").text
         games = day.find_elements(By.CSS_SELECTOR, "div.ScheduleGame_sg__RmD9I")
@@ -107,7 +118,7 @@ def scrape_schedule():
     driver.quit()
     # print(game_list)
     if game_list:
-        parse_schedule(game_list)
+        return parse_schedule(game_list)
 
     
 

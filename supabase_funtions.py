@@ -23,17 +23,18 @@ def readData():
     data = supabase.table("temp").select("*").execute()
     print(data)
 
-def insertData():
+def insert_schedule_data(schedule_data):
     try:
-        data = supabase.table("temp").insert([{"id":3, "name":"Germany123"},{"id":311, "name":"Germany1212123"}]).execute()
+        data = supabase.table("schedule").insert(schedule_data).execute()
         print(data)
     except Exception as e:
         print(f"An error occurred: {e}")
 
 def get_schedule():
     import nba_schedule
-    nba_schedule.scrape_schedule()
-    insertData()
+    schedule_output= nba_schedule.scrape_schedule()
+    print(schedule_output)
+    insert_schedule_data(schedule_output)
     
 schedule.every(10).seconds.do(get_schedule)
 
