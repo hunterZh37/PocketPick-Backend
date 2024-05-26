@@ -15,8 +15,6 @@
 # # Open the webpage
 # driver.get("https://www.nba.com/stats/players/boxscores?SeasonType=Regular+Season")
 
-def hiFromScrapper():
-    print("I'm working... from scrapper") 
 
 # Wait for the dynamic content to load
 # WebDriverWait(driver, 300).until(

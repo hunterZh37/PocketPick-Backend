@@ -8,6 +8,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
 import pytz
 import schedule
+import json
+
 
 
 # Dictionary mapping NBA team names to their 3-letter abbreviations
@@ -53,9 +55,6 @@ def convert_date(date):
     current_year = datetime.now().year
     date_obj = date_obj.replace(year=current_year).strftime('%Y-%m-%d')
     return date_obj
-  
-def get_abbreviation(team_name):
-    return team_abbreviations.get(team_name, team_name)
 
 def convert_time(time_str):
      parsed_time= datetime.strptime(time_str[:-3], '%I:%M %p')
@@ -83,22 +82,14 @@ def parse_schedule(schedule):
                     "home_team": home,
                     "time": supabase_time,
                     "opponent_team": opponent})
-                # print() 
-        # print(output)  
         return output
 
 def scrape_schedule():
-    # Set up the Chrome options
     options = Options()
     options.headless = True
-    # Path to the ChromeDriver executable
     driver_path = '/opt/homebrew/bin/chromedriver'
     s = Service(driver_path)
-
     driver = webdriver.Chrome(service=s, options=options)
-    # print(driver)
-    # Open the webpage
-
     driver.get("https://www.nba.com/schedule")
     wait = WebDriverWait(driver, 10)
     schedule = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "div.ScheduleDay_sd__GFE_w")))
@@ -116,15 +107,8 @@ def scrape_schedule():
             day_list.append(new_game)
         game_list.append({date:day_list})
     driver.quit()
-    # print(game_list)
     if game_list:
         return parse_schedule(game_list)
-
-    
-
-
-
-
 
 
 #return game_list
