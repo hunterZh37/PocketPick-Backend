@@ -36,10 +36,24 @@ def delete_schedule_data():
     except Exception as e:
         print(f"An error occurred: {e}")
 
+def insert_player_boxscore_data(player_boxscore_data):
+    try:
+        data = supabase.table("player_boxscore").insert(player_boxscore_data).execute()
+        print(data)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+def delete_player_boxscore_data():
+    try:
+        data = supabase.table("player_boxscore").delete().neq('name', "sdfes").execute()
+        print(data)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
 def get_schedule():
-    import nba_schedule_scrapper
-    schedule_output= nba_schedule_scrapper.scrape_schedule()
-    print(schedule_output)
+    import nba_schedule_scraper
+    schedule_output = nba_schedule_scraper.scrape_schedule()
+    # print(schedule_output)
     old_shedule = utility.load_previous_file("nba_schedule.json")
     changes = utility.detect_changes(schedule_output, old_shedule)
 
@@ -52,11 +66,26 @@ def get_schedule():
         print("No changes detected")
 
 def get_player_boxscore():
-    return []
+    import player_boxscore_regular_season_scraper
+    player_boxscore_output = player_boxscore_regular_season_scraper.scrape_player_boxscore()
+    print(player_boxscore_output)
+    old_boxscore = utility.load_previous_file("player_boxscore_regular_season.json")
+    changes = utility.detect_changes(player_boxscore_output, old_boxscore)
+    # print(changes)
+
+    if changes:
+        utility.notify_changes(changes)
+        # delete_schedule_data()
+        utility.save_file(player_boxscore_output, "player_boxscore_regular_season.json") 
+        # insert_schedule_data(player_boxscore_output)
+    else:
+        print("No changes detected")
+
     # import player_boxscore_regular_season_scrapper
     # player_boxscore_regular_season_scrapper.get_player_boxscore()
     
-schedule.every(10).seconds.do(get_schedule)
+# schedule.every(10).seconds.do(get_schedule)
+schedule.every(10).seconds.do(get_player_boxscore)
 
 while True:
     schedule.run_pending()
