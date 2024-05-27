@@ -68,7 +68,7 @@ def get_schedule():
 def get_player_boxscore():
     import player_boxscore_regular_season_scraper
     player_boxscore_output = player_boxscore_regular_season_scraper.scrape_player_boxscore()
-    print(player_boxscore_output)
+    # print(player_boxscore_output)
     old_boxscore = utility.load_previous_file("player_boxscore_regular_season.json")
     changes = utility.detect_changes(player_boxscore_output, old_boxscore)
     # print(changes)
