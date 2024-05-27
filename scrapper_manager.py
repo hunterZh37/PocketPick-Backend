@@ -37,8 +37,8 @@ def delete_schedule_data():
         print(f"An error occurred: {e}")
 
 def get_schedule():
-    import nba_schedule
-    schedule_output= nba_schedule.scrape_schedule()
+    import nba_schedule_scrapper
+    schedule_output= nba_schedule_scrapper.scrape_schedule()
     print(schedule_output)
     old_shedule = utility.load_previous_file("nba_schedule.json")
     changes = utility.detect_changes(schedule_output, old_shedule)
@@ -50,6 +50,11 @@ def get_schedule():
         insert_schedule_data(schedule_output)
     else:
         print("No changes detected")
+
+def get_player_boxscore():
+    return []
+    # import player_boxscore_regular_season_scrapper
+    # player_boxscore_regular_season_scrapper.get_player_boxscore()
     
 schedule.every(10).seconds.do(get_schedule)
 
