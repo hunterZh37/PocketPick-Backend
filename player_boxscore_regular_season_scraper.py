@@ -23,7 +23,7 @@ def find_number_of_pages(data):
     return total_pages
 
 
-def find_next_button(driver,data):
+def find_next_button(data):
     temp = data.find_element(By.CSS_SELECTOR, "div.Pagination_content__f2at7.Crom_cromSetting__Tqtiq")
     temp = temp.find_element(By.XPATH, '//button[@title="Next Page Button" and @class="Pagination_button__sqGoH"]')
    
@@ -32,11 +32,6 @@ def find_next_button(driver,data):
                 
     # next_button = temp.find_element(By.CSS_SELECTOR, "button.Pagination_button__sqGoH")
     return temp
-
-def find_next_button_container(data):
-    temp = data.find_element(By.CSS_SELECTOR, "div.Pagination_content__f2at7.Crom_cromSetting__Tqtiq")
-    next_button_container = temp.find_element(By.CSS_SELECTOR, "div.Pagination_buttons__YpLUe")
-    return next_button_container
 
 
 def parse_data_into_json(headers,data):
@@ -94,33 +89,15 @@ try:
                 # Find all cells in the row
                 cells = row.find_elements(By.TAG_NAME, "td")
                 row_data = [cell.text for cell in cells]
-                table_data.append(row_data)
                 print(row_data)
-            
-            data.append(parse_data_into_json(headers, table_data))
+                # fix the json format.
 
-            temp = driver.find_element(By.CSS_SELECTOR, "div.Crom_cromSettings__ak6Hd")
-           
-            next_button = find_next_button(driver,temp)
-            print("next button: ", next_button.get_attribute('innerHTML'))
-            # driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
-            # print("next button", next_button)
-            # try:
-            # next_button_container = find_next_button_container(temp)
-            # driver.execute_script("arguments[0].scrollIntoView(true);", next_button_container)
+            data.append(parse_data_into_json(headers, table_data))
+            next_button = find_next_button(driver.find_element(By.CSS_SELECTOR, "div.Crom_cromSettings__ak6Hd"))
+            # print("next button: ", next_button.get_attribute('innerHTML'))
             actions = ActionChains(driver)
             actions.move_to_element(next_button).click().perform()
-            # except Exception as click_exception:
-            #     print("Click intercepted, attempting with ActionChains")
-            #     actions = ActionChains(driver)
-            #     actions.move_to_element(next_button).click().perform()
-            
-            time.sleep(10)
-            # next_button_container = find_next_button_container(driver.find_element(By.CSS_SELECTOR, "div.Crom_cromSettings__ak6Hd"))
-            # print(next_button_container)
-            # actions = ActionChains(driver)
-            # actions.move_to_element(next_button_container).click(next_button).perform()
-
+            time.sleep(8)
         else:
             print("Table not found.")
 
