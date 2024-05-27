@@ -45,6 +45,9 @@ def parse_data_into_json(headers,data):
         parsed_data.append(player_stats)
      return parsed_data
 
+def convert_to_dict(data): 
+    return dict(zip(headers, data))
+
 # def scrape_player_boxscore():
 options = Options()
 options.headless = True
@@ -88,7 +91,10 @@ try:
             for row in rows:
                 # Find all cells in the row
                 cells = row.find_elements(By.TAG_NAME, "td")
-                row_data = [cell.text for cell in cells]
+                row_data = [cell.text[-3:] if '@' in cell.text or 'vs.' in cell.text else cell.text for cell in cells]
+
+
+            
                 print(row_data)
                 # fix the json format.
 
