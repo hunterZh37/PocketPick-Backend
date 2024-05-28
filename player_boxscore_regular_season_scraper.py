@@ -45,7 +45,7 @@ def parse_data_into_json(headers,data):
         parsed_data.append(player_stats)
      return parsed_data
 
-def convert_to_dict(data): 
+def convert_to_dict(headers,data): 
     return dict(zip(headers, data))
 
 # def scrape_player_boxscore():
@@ -54,6 +54,7 @@ options.headless = True
 driver_path = '/opt/homebrew/bin/chromedriver'
 s = Service(driver_path)
 driver = webdriver.Chrome(service=s, options=options)
+driver.maximize_window()
 
 headers = [
     "name", "team", "opponent_team", "date", "result",
@@ -79,9 +80,10 @@ try:
 
 
     data = []
-    for i in range(10):
+    for i in range(page_number):
         print("Page number: ", i)
         table = driver.find_element(By.CSS_SELECTOR, "table.Crom_table__p1iZz")
+
         if table:
             table_data = []   
             print("Table found.", table)
@@ -92,13 +94,11 @@ try:
                 # Find all cells in the row
                 cells = row.find_elements(By.TAG_NAME, "td")
                 row_data = [cell.text[-3:] if '@' in cell.text or 'vs.' in cell.text else cell.text for cell in cells]
-
-
-            
-                print(row_data)
-                # fix the json format.
-
-            data.append(parse_data_into_json(headers, table_data))
+                row_data = convert_to_dict(headers,row_data)
+                #print(row_data)
+                data.append(row_data)
+        
+           
             next_button = find_next_button(driver.find_element(By.CSS_SELECTOR, "div.Crom_cromSettings__ak6Hd"))
             # print("next button: ", next_button.get_attribute('innerHTML'))
             actions = ActionChains(driver)
@@ -106,6 +106,9 @@ try:
             time.sleep(8)
         else:
             print("Table not found.")
+        
+        # print("data: ", data)   
+
 
     old_boxscore = utility.load_previous_file("player_boxscore_regular_season.json")
     changes = utility.detect_changes(data, old_boxscore)
