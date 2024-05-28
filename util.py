@@ -9,8 +9,13 @@ def load_previous_file(filename):
         return []
     
 def detect_changes(new_file, old_file):
-    new_entries = [entry for entry in new_file if entry not in old_file]
-    return new_entries
+    if new_file != old_file:
+        return new_file
+    else:
+        return None
+    
+    # new_entries = [entry for entry in new_file if entry not in old_file]
+    # return new_entries
 
 def save_file(data, filename):
     with open(filename, 'w') as file:

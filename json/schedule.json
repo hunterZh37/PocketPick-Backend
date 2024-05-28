@@ -1,0 +1,14 @@
+[
+    {
+        "date": "2024-05-28",
+        "home_team": "MIN",
+        "time": "20:30:00",
+        "opponent_team": "DAL"
+    },
+    {
+        "date": "2024-05-30",
+        "home_team": "DAL",
+        "time": "20:30:00",
+        "opponent_team": "MIN"
+    }
+]
