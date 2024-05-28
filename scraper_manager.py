@@ -75,17 +75,18 @@ def get_player_boxscore():
 
     if changes:
         utility.notify_changes(changes)
-        # delete_schedule_data()
+        delete_player_boxscore_data()
         utility.save_file(player_boxscore_output, "player_boxscore_regular_season.json") 
-        # insert_schedule_data(player_boxscore_output)
+        insert_player_boxscore_data(player_boxscore_output)
     else:
         print("No changes detected")
 
-    # import player_boxscore_regular_season_scrapper
-    # player_boxscore_regular_season_scrapper.get_player_boxscore()
-    
+   
 # schedule.every(10).seconds.do(get_schedule)
-schedule.every(10).seconds.do(get_player_boxscore)
+schedule.every().day.at("5:00").do(get_schedule)
+schedule.every().day.at("5:00").do(get_player_boxscore)
+
+
 
 while True:
     schedule.run_pending()

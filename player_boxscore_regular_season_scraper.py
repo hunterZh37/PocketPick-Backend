@@ -48,87 +48,73 @@ def parse_data_into_json(headers,data):
 def convert_to_dict(headers,data): 
     return dict(zip(headers, data))
 
-# def scrape_player_boxscore():
-options = Options()
-options.headless = True
-driver_path = '/opt/homebrew/bin/chromedriver'
-s = Service(driver_path)
-driver = webdriver.Chrome(service=s, options=options)
-driver.maximize_window()
+def scrape_player_boxscore():
+    options = Options()
+    options.headless = True
+    driver_path = '/opt/homebrew/bin/chromedriver'
+    s = Service(driver_path)
+    driver = webdriver.Chrome(service=s, options=options)
+    driver.maximize_window()
 
-headers = [
-    "name", "team", "opponent_team", "date", "result",
-    "minutes", "pts", "fgm", "fga", "fgperc",
-    "3pm", "3pa", "3perc",
-    "ftm", "fta", "ftperc", "oreb", "dreb",
-    "reb", "ast", "stl", "blk", "to", "pf", "plus_minus",
-    "per"
-]
+    headers = [
+        "name", "team", "opponent_team", "date", "result",
+        "minutes", "pts", "fgm", "fga", "fgperc",
+        "3pm", "3pa", "3perc",
+        "ftm", "fta", "ftperc", "oreb", "dreb",
+        "reb", "ast", "stl", "blk", "to", "pf", "plus_minus",
+        "per"
+    ]
 
-try:
-    # Open the webpage
-    driver.get("https://www.nba.com/stats/players/boxscores?SeasonType=Regular+Season")
+    try:
+        # Open the webpage
+        driver.get("https://www.nba.com/stats/players/boxscores?SeasonType=Regular+Season")
 
-    # Increase wait time and verify correct selector
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "div.Crom_cromSettings__ak6Hd"))
-    )
+        # Increase wait time and verify correct selector
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div.Crom_cromSettings__ak6Hd"))
+        )
 
-    page_number = find_number_of_pages(driver.find_element(By.CSS_SELECTOR, "div.Crom_cromSettings__ak6Hd"))
-    # print(page_number)
-    
-
-
-    data = []
-    for i in range(page_number):
-        print("Page number: ", i)
-        table = driver.find_element(By.CSS_SELECTOR, "table.Crom_table__p1iZz")
-
-        if table:
-            table_data = []   
-            print("Table found.", table)
-            tbody = table.find_element(By.CSS_SELECTOR, "tbody.Crom_body__UYOcU")
-            rows = tbody.find_elements(By.TAG_NAME, "tr")
+        page_number = find_number_of_pages(driver.find_element(By.CSS_SELECTOR, "div.Crom_cromSettings__ak6Hd"))
+        # print(page_number)
         
-            for row in rows:
-                # Find all cells in the row
-                cells = row.find_elements(By.TAG_NAME, "td")
-                row_data = [cell.text[-3:] if '@' in cell.text or 'vs.' in cell.text else cell.text for cell in cells]
-                row_data = convert_to_dict(headers,row_data)
-                #print(row_data)
-                data.append(row_data)
-        
-           
-            next_button = find_next_button(driver.find_element(By.CSS_SELECTOR, "div.Crom_cromSettings__ak6Hd"))
-            # print("next button: ", next_button.get_attribute('innerHTML'))
-            actions = ActionChains(driver)
-            actions.move_to_element(next_button).click().perform()
-            time.sleep(8)
-        else:
-            print("Table not found.")
-        
-        # print("data: ", data)   
 
 
-    old_boxscore = utility.load_previous_file("player_boxscore_regular_season.json")
-    changes = utility.detect_changes(data, old_boxscore)
-    # print(changes)
+        data = []
+        for i in range(page_number):
+            print("Page number: ", i)
+            table = driver.find_element(By.CSS_SELECTOR, "table.Crom_table__p1iZz")
 
-    if changes:
-        utility.notify_changes(changes)
-        # delete_schedule_data()
-        utility.save_file(data, "player_boxscore_regular_season.json") 
-        # insert_schedule_data(player_boxscore_output)
-    else:
-        print("No changes detected")
+            if table:
+                table_data = []   
+                print("Table found.", table)
+                tbody = table.find_element(By.CSS_SELECTOR, "tbody.Crom_body__UYOcU")
+                rows = tbody.find_elements(By.TAG_NAME, "tr")
+            
+                for row in rows:
+                    # Find all cells in the row
+                    cells = row.find_elements(By.TAG_NAME, "td")
+                    row_data = [cell.text[-3:] if '@' in cell.text or 'vs.' in cell.text else cell.text for cell in cells]
+                    row_data = convert_to_dict(headers,row_data)
+                    #print(row_data)
+                    data.append(row_data)
+            
+            
+                next_button = find_next_button(driver.find_element(By.CSS_SELECTOR, "div.Crom_cromSettings__ak6Hd"))
+                # print("next button: ", next_button.get_attribute('innerHTML'))
+                actions = ActionChains(driver)
+                actions.move_to_element(next_button).click().perform()
+                time.sleep(8)
+            else:
+                print("Table not found.")
+            
+            # print("data: ", data)  
 
+        # print(data)
 
-    # print(data)
+        return data
+    except Exception as e:
+        print("TimeoutException: Table not found within the specified wait time.", e)
 
-    # return data
-except Exception as e:
-    print("TimeoutException: Table not found within the specified wait time.", e)
-
-finally:
-    # Always close the driver
-    driver.quit()
+    finally:
+        # Always close the driver
+        driver.quit()
