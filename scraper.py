@@ -39,25 +39,31 @@ class Scraper:
         self.driver.get("https://www.nba.com/stats/players/traditional")
         # Wait for the page to load and the button to be clickable
         wait = WebDriverWait(self.driver, 5)
-        actions = ActionChains(self.driver)
-        button_container = self.driver.find_element(By.CSS_SELECTOR, "div.Pagination_buttons__YpLUe")
-        button = (self.driver.find_elements(By.CSS_SELECTOR, "button.Pagination_button__sqGoH"))[1]
-        actions.move_to_element(button_container).click(button).perform()
-        
-        
-        table = self.driver.find_element(By.CSS_SELECTOR, "table.Crom_table__p1iZz")
-        header = [header.text for header in table.find_elements(By.XPATH, ".//thead/tr/th") if header.text != ""]   
-        
-        rows = []
-        for row in table.find_elements(By.XPATH, ".//tbody/tr"):
-            row_data = [cell.text for cell in row.find_elements(By.XPATH, ".//td")]
-            rows.append(row_data)
-        df = pd.DataFrame(rows, columns=header)
-        return df
+        page_num_selector = self.driver.find_elements(By.CSS_SELECTOR, "select.DropDown_select__4pIg9")[-1]
+        page_num = page_num_selector.find_elements(By.CSS_SELECTOR, "option")[-1].text
+        subtables = []
+        for i in range(int(page_num)):
+            table = self.driver.find_element(By.CSS_SELECTOR, "table.Crom_table__p1iZz")
+            header = [header.text for header in table.find_elements(By.XPATH, ".//thead/tr/th") if header.text != ""] 
+            rows = []
+            for row in table.find_elements(By.XPATH, ".//tbody/tr"):
+                row_data = [cell.text for cell in row.find_elements(By.XPATH, ".//td")]
+                rows.append(row_data)
+            df = pd.DataFrame(rows, columns=header)  
+            subtables.append(df)
+            if i != int(page_num) - 1:
+                actions = ActionChains(self.driver)
+                button_container = self.driver.find_element(By.CSS_SELECTOR, "div.Pagination_buttons__YpLUe")
+                button = (self.driver.find_elements(By.CSS_SELECTOR, "button.Pagination_button__sqGoH"))[1]
+                actions.move_to_element(button_container).click(button).perform()
+        result_df = pd.concat(subtables)
+        return result_df
     def close(self):
         self.driver.quit()
 
 # Example usage
-# scraper = Scraper()
+scraper = Scraper()
+df = scraper.get_traditional_stats()
+print(df)
 # scraper.get_schedule()
-# scraper.close()
+scraper.close()
