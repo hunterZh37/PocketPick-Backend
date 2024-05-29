@@ -8,7 +8,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
-import utility
 
 import utility
 
@@ -26,11 +25,6 @@ def find_number_of_pages(data):
 def find_next_button(data):
     temp = data.find_element(By.CSS_SELECTOR, "div.Pagination_content__f2at7.Crom_cromSetting__Tqtiq")
     temp = temp.find_element(By.XPATH, '//button[@title="Next Page Button" and @class="Pagination_button__sqGoH"]')
-   
-    # next_button = WebDriverWait(driver, 10).until(
-    #                 EC.element_to_be_clickable((By.CSS_SELECTOR, "button.Pagination_button__sqGoH")))
-                
-    # next_button = temp.find_element(By.CSS_SELECTOR, "button.Pagination_button__sqGoH")
     return temp
 
 

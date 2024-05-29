@@ -21,3 +21,6 @@ def notify_changes(changes):
         print("New entries detected:")
         for change in changes:
             print(change)
+
+def convert_to_dict(headers,data): 
+    return dict(zip(headers, data))

@@ -50,6 +50,20 @@ def delete_player_boxscore_data():
     except Exception as e:
         print(f"An error occurred: {e}")
 
+def insert_player_season_stats_data(player_season_stats_data):
+    try:
+        data = supabase.table("player_season_stats").insert(player_season_stats_data).execute()
+        print(data)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+def delete_player_season_stats_data():
+    try:
+        data = supabase.table("player_season_stats").delete().neq('name', "").execute()
+        print(data)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
 def get_schedule():
     import nba_schedule_scraper
     schedule_output = nba_schedule_scraper.scrape_schedule()
@@ -81,15 +95,32 @@ def get_player_boxscore():
     else:
         print("No changes detected")
 
+def get_player_season_stats():
+    import player_season_stats_scraper
+    player_season_stats_output = player_season_stats_scraper.scrape_player_season_stats()
+    print(player_season_stats_output)
+
+    old_season_stats = utility.load_previous_file("player_season_stats.json")
+    changes = utility.detect_changes(player_season_stats_output, old_season_stats)
+
+    if changes:
+        utility.notify_changes(changes)
+        # delete_player_boxscore_data()
+        utility.save_file(player_season_stats_output, "player_boxscore_regular_season.json") 
+        # insert_player_boxscore_data(player_season_stats_output)
+    else:
+        print("No changes detected")
+
    
 # schedule.every(10).seconds.do(get_schedule)
-schedule.every().day.at("5:00").do(get_schedule)
-schedule.every().day.at("5:00").do(get_player_boxscore)
+# schedule.every().day.at("5:00").do(get_schedule)
+# schedule.every().day.at("5:00").do(get_player_boxscore)
+
+get_player_season_stats()
 
 
-
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+# while True:
+#     schedule.run_pending()
+#     time.sleep(1)
 
 
