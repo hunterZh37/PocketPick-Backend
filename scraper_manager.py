@@ -105,9 +105,9 @@ def get_player_season_stats():
 
     if changes:
         utility.notify_changes(changes)
-        # delete_player_boxscore_data()
-        utility.save_file(player_season_stats_output, "player_boxscore_regular_season.json") 
-        # insert_player_boxscore_data(player_season_stats_output)
+        delete_player_boxscore_data()
+        utility.save_file(player_season_stats_output, "player_season_stats.json") 
+        insert_player_season_stats_data(player_season_stats_output)
     else:
         print("No changes detected")
 

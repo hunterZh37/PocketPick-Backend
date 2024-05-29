@@ -15,8 +15,7 @@ import utility
 
 headers = [
     "player_id","name", "team", "age", "gp", "wins", "losses", "min", "pts", "fgm", "fga", 
-    "fgperc", "3pm", "3pa", "3perc", "ftm", "fta", "ftperc", "orpg", "drpg", "reb", "ast", "tov", "stl", "blk", "pf", "fp", "dd","td", "pm"
-     
+    "fgperc", "3pm", "3pa", "3perc", "ftm", "fta", "ftperc", "orpg", "drpg", "reb", "ast", "tov", "stl", "blk", "pf", "fp", "dd","td", "pm" 
 ]
 
 def scrape_player_season_stats():
@@ -36,11 +35,14 @@ def scrape_player_season_stats():
 
         # subtables = []
         data = []
+        player_id = 1
         for i in range(int(page_num)):
             table = driver.find_element(By.CSS_SELECTOR, "table.Crom_table__p1iZz")
         
             for row in table.find_elements(By.XPATH, ".//tbody/tr"):
                 row_data = [cell.text for cell in row.find_elements(By.XPATH, ".//td")]
+                row_data[0] = player_id
+                player_id += 1
                 row_data = utility.convert_to_dict(headers,row_data) 
                 print(row_data)
                 data.append(row_data)
@@ -49,9 +51,7 @@ def scrape_player_season_stats():
             button = (driver.find_elements(By.CSS_SELECTOR, "button.Pagination_button__sqGoH"))[1]
             actions.move_to_element(button).click().perform()
 
-        print(data)   
-
-        
+        # print(data)   
         return data    
 
     except Exception as e:
