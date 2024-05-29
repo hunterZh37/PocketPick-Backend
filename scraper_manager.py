@@ -38,7 +38,7 @@ def delete_schedule_data():
 
 def insert_player_boxscore_data(player_boxscore_data):
     try:
-        data = supabase.table("player_boxscore").insert(player_boxscore_data).execute()
+        data = supabase.table("player_regular_season_boxscore").insert(player_boxscore_data).execute()
         print(data)
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -52,7 +52,7 @@ def delete_player_boxscore_data():
 
 def insert_player_season_stats_data(player_season_stats_data):
     try:
-        data = supabase.table("player_season_stats").insert(player_season_stats_data).execute()
+        data = supabase.table("player_regular_season_stats").insert(player_season_stats_data).execute()
         print(data)
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -96,8 +96,8 @@ def get_player_boxscore():
         print("No changes detected")
 
 def get_player_season_stats():
-    import player_season_stats_scraper
-    player_season_stats_output = player_season_stats_scraper.scrape_player_season_stats()
+    import player_regular_season_stats_scraper
+    player_season_stats_output = player_regular_season_stats_scraper.scrape_player_season_stats()
     print(player_season_stats_output)
 
     old_season_stats = utility.load_previous_file("player_season_stats.json")
@@ -111,12 +111,16 @@ def get_player_season_stats():
     else:
         print("No changes detected")
 
+
+# insert_player_boxscore_data()
+
+
    
 # schedule.every(10).seconds.do(get_schedule)
 # schedule.every().day.at("5:00").do(get_schedule)
 # schedule.every().day.at("5:00").do(get_player_boxscore)
 
-get_player_season_stats()
+# get_player_season_stats()
 
 
 # while True:
